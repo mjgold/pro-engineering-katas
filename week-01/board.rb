@@ -5,7 +5,7 @@
 # and it contains absolutely no game-specific logic.
 
 # The goal of this kata is to build familiarity with RSpec tests and their
-# output.  Below it the skeleton of the Board class. Implement the behavior
+# output.  Below is the skeleton of the Board class. Implement the behavior
 # implied by the tests in specs/board_spec.rb.  Run the spec with
 #
 #  rspec specs/board_spec.rb
@@ -42,25 +42,43 @@ class Board
   def get(row, column)
     raise_unless_dimensions_valid!(row, column)
 
-    # Implement this. :)
+    contents = @board[row][column]
+    return nil if contents.nil?
+    contents
   end
 
   def place(row, column, piece)
     raise_unless_dimensions_valid!(row, column)
-
-    # Implement this. :)
+    raise_unless_cell_empty!(row, column)
+    @board[row][column] = piece
   end
 
   def remove(row, column)
     raise_unless_dimensions_valid!(row, column)
-
-    # Implement this. :)
+    raise_unless_cell_filled!(row, column)
+    @board[row][column] = nil
   end
 
   private
   def raise_unless_dimensions_valid!(row, column)
-    # Implement a single method that checks for the dimensions given and raises
-    # a DimensionError unless they're valid. We don't need to test this method
-    # because it's private.
+    if row < 0 || row >= @row_count
+      raise DimensionError, "row must be > 0 and less than #{@row_count} (got #{row})"
+    end
+
+    if column < 0 || column >= @column_count
+      raise DimensionError, "column must be > 0 and less than #{@column_count} (got #{column})"
+    end
+  end
+
+  def raise_unless_cell_empty!(row, column)
+    unless @board[row][column].nil?
+      raise CellError, "(#{row}, #{column}) is already occupied by #{@board[row][column]}"
+    end
+  end
+
+  def raise_unless_cell_filled!(row, column)
+    unless !@board[row][column].nil?
+      raise CellError, "(#{row}, #{column}) is empty"
+    end
   end
 end
