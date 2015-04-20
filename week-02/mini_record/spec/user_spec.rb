@@ -48,28 +48,63 @@ RSpec.describe User, type: :model do
       found_user = User.find(id)
       expect(found_user.read_attribute(:id)).to eq(user.read_attribute(:id))
     end
+
+    it 'returns no results if there is no user with the passed id' do
+      user_with_largest_id = User.all.max_by do |user|
+        user.read_attribute(:id)
+      end
+      largest_id = user_with_largest_id.read_attribute(:id)
+
+      found_user = User.find(largest_id + 1)
+      expect(found_user).to eq(nil)
+    end
   end
 
   describe '#create' do
     it 'creates a new user with specified attributes' do
-      attributes = {
-        first_name: Faker::Name.first_name,
-        last_name:  Faker::Name.last_name,
-        email:      Faker::Internet.email,
-        birth_date: Faker::Date.birthday,
-        created_at: DateTime.now,
-        updated_at: DateTime.now
-      }
-
+      attributes = create_user_attributes
       user = User.create(attributes)
 
       # Not using User#where or #find to ensure #create is the only User method tested
-      found_user = MiniRecord::Database.execute("SELECT * FROM users WHERE \ 
+      found_user = MiniRecord::Database.execute("SELECT * FROM users WHERE \
         last_name = '#{attributes[:last_name]}' AND email = '#{attributes[:email]}'")[0]
       expect(found_user["email"]).to eq(user[:email])
     end
+
+    it 'fails to create a new user if a required attribute (last_name) is missing' do
+      attributes = create_user_attributes
+      attributes.delete(:last_name)
+
+      expect {
+        user = User.create(attributes).to raise SQlite3::ConstraintException
+      }
+    end
   end
 
+  describe '#initialize' do
+    it 'initializes a new user with specified attributes' do
+      attributes = create_user_attributes
+      user = User.new(attributes) # Calls initialize, which is private
+
+      user.attribute_names.each do |attr_name|
+        expect {
+          user.attr_name.to eq(attributes[attr_name])
+        }
+      end
+    end
+
+    it 'fails when a required attribute (email) is missing' do
+      attributes = create_user_attributes
+      attributes.delete(:email)
+      user = User.new(attributes) # Calls initialize, which is private
+
+      user.attribute_names.each do |attr_name|
+        expect {
+          user.attr_name.not_to eq(attributes[attr_name])
+        }
+      end
+    end
+  end
 end
 
 def create_user
@@ -81,4 +116,15 @@ def create_user
     created_at: DateTime.now,
     updated_at: DateTime.now
   )
+end
+
+def create_user_attributes
+  {
+    first_name: Faker::Name.first_name,
+    last_name:  Faker::Name.last_name,
+    email:      Faker::Internet.email,
+    birth_date: Faker::Date.birthday,
+    created_at: DateTime.now,
+    updated_at: DateTime.now
+  }
 end
