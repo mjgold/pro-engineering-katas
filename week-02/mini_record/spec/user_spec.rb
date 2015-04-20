@@ -27,7 +27,7 @@ RSpec.describe User, type: :model do
   end
 
   describe '#where' do
-    it 'finds a user by email' do
+    it 'finds a user by email and last_name' do
       user = create_user
       email = Faker::Internet.email
       last_name = Faker::Name.last_name
@@ -41,12 +41,31 @@ RSpec.describe User, type: :model do
   end
 
   describe '#find' do
-    it 'finds a user by email' do
+    it 'finds a user by id' do
       user = create_user
       id = user.read_attribute(:id)
 
       found_user = User.find(id)
       expect(found_user.read_attribute(:id)).to eq(user.read_attribute(:id))
+    end
+  end
+
+  describe '#create' do
+    it 'creates a new user with specified attributes' do
+      attributes = {
+        first_name: Faker::Name.first_name,
+        last_name:  Faker::Name.last_name,
+        email:      Faker::Internet.email,
+        birth_date: Faker::Date.birthday,
+        created_at: DateTime.now,
+        updated_at: DateTime.now
+      }
+
+      user = User.create(attributes)
+
+      # Not using User#where or #find to ensure #create is the only User method tested
+      found_user = MiniRecord::Database.execute("SELECT * FROM users WHERE email = '#{attributes[:email]}'")[0]
+      expect(found_user["email"]).to eq(user[:email])
     end
   end
 
