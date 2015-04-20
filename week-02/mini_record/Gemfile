@@ -1,0 +1,6 @@
+source 'https://rubygems.org'
+
+gem 'sqlite3'
+gem 'rspec'
+gem 'faker', '1.4.3'
+gem 'factory_girl', '~> 4.0'

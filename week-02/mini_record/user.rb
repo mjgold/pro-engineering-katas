@@ -1,5 +1,7 @@
 class User < MiniRecord::Model
+  ### How to combine these two lines?
   self.attribute_names = [:id, :first_name, :last_name, :email, :birth_date, :created_at, :updated_at]
+  attr_accessor :id, :first_name, :last_name, :email, :birth_date, :created_at, :updated_at
 
   def self.all
     MiniRecord::Database.execute('SELECT * FROM users').map do |row|
@@ -61,6 +63,11 @@ class User < MiniRecord::Model
     end
   end
 
+  # For FactoryGirl
+  def save!
+    save
+  end
+
   def read_attribute(attr_name)
     @attributes[attr_name]
   end
@@ -87,6 +94,7 @@ class User < MiniRecord::Model
 
     values  = @attributes.values
 
+    # puts "insert_record! - insert_sql: #{insert_sql}, values: #{values}"
     MiniRecord::Database.execute(insert_sql, *values).tap do
       # We don't have a value for id until we insert the database, so fetch
       # the last insert ID after a successful insert and update our Ruby model.
