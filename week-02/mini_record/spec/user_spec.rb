@@ -64,7 +64,8 @@ RSpec.describe User, type: :model do
       user = User.create(attributes)
 
       # Not using User#where or #find to ensure #create is the only User method tested
-      found_user = MiniRecord::Database.execute("SELECT * FROM users WHERE email = '#{attributes[:email]}'")[0]
+      found_user = MiniRecord::Database.execute("SELECT * FROM users WHERE \ 
+        last_name = '#{attributes[:last_name]}' AND email = '#{attributes[:email]}'")[0]
       expect(found_user["email"]).to eq(user[:email])
     end
   end
