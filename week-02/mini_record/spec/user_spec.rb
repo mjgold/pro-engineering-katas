@@ -39,6 +39,17 @@ RSpec.describe User, type: :model do
       expect(found_user.read_attribute(:id)).to eq(user.read_attribute(:id))
     end
   end
+
+  describe '#find' do
+    it 'finds a user by email' do
+      user = create_user
+      id = user.read_attribute(:id)
+
+      found_user = User.find(id)
+      expect(found_user.read_attribute(:id)).to eq(user.read_attribute(:id))
+    end
+  end
+
 end
 
 def create_user
