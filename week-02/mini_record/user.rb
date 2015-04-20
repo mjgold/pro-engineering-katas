@@ -1,7 +1,5 @@
 class User < MiniRecord::Model
-  ### How to combine these two lines?
   self.attribute_names = [:id, :first_name, :last_name, :email, :birth_date, :created_at, :updated_at]
-  attr_accessor :id, :first_name, :last_name, :email, :birth_date, :created_at, :updated_at
 
   def self.all
     MiniRecord::Database.execute('SELECT * FROM users').map do |row|
@@ -61,11 +59,6 @@ class User < MiniRecord::Model
     else
       update_record!
     end
-  end
-
-  # For FactoryGirl
-  def save!
-    save
   end
 
   def read_attribute(attr_name)
